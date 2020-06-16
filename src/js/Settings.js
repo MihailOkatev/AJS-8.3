@@ -5,26 +5,28 @@ const possibleSettings = {
 };
 // eslint-disable-next-line import/prefer-default-export
 export class Settings {
-  constructor() {
+  constructor(...rest) {
     this.default = new Map();
     this.userSettings = new Map();
     this.default.set('theme', 'dark');
     this.default.set('music', 'trance');
     this.default.set('difficulty', 'easy');
     this.userSettings = new Map(this.default);
+    rest.forEach((item) => {
+      for (const prop in item) {
+        // eslint-disable-next-line no-prototype-builtins
+        if (possibleSettings.hasOwnProperty(prop)) {
+          if (!possibleSettings[prop].includes(item[prop])) {
+            throw new Error('У настройки нет такого значения');
+          }
+          this.userSettings.set(prop, item[prop]);
+        } else {
+          throw new Error('Попытка изменить несуществующую настройку');
+        }
+      }
+    });
   }
 
-  userSetup(settingName, value) {
-    // eslint-disable-next-line no-use-before-define,no-prototype-builtins
-    if (possibleSettings.hasOwnProperty(settingName)) {
-      if (!possibleSettings[settingName].includes(value)) {
-        throw new Error('У настройки нет такого значения');
-      }
-      this.userSettings.set(settingName, value);
-    } else {
-      throw new Error('Попытка изменить несуществующую настройку');
-    }
-  }
 
   get settings() {
     return this.userSettings;
